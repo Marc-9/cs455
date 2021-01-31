@@ -36,7 +36,9 @@ public class Node {
         this.din = new DataInputStream(this.socket.getInputStream());
         for (int i = 0; i < 5; i++) {
             this.recieveTracker++;
-            this.totRecived += din.readInt();
+            int temp = din.readInt();
+            this.totRecived += temp;
+            System.out.println("Recieved the number " + temp);
         }
     }
 
@@ -45,7 +47,7 @@ public class Node {
         this.socket.close();
     }
 
-    public void sender() throws IOException{ 
+    public void sender() throws IOException {
         try {
             this.serverSocket = new ServerSocket(this.port, 5);
         } catch (IOException e) {
@@ -61,11 +63,37 @@ public class Node {
             this.dout.writeInt(randInt);
             this.sendTracker++;
             this.totSent += randInt;
+            System.out.println("Sending the number " + randInt);
         }
     }
 
     public void closeSender() throws IOException {
         this.dout.close();
         this.serverSocket.close();
+    }
+
+    public static void main(String[] args) {
+        Node test = new Node(8652);
+        if (args[0].equals("Server")) {
+            try{
+                test.sender();
+                test.closeSender();
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+            
+        } else {
+            try{
+                test.reciever("sacramento.cs.colostate.edu", 8652);
+                test.closeReciever();
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+            
+            
+        }
+        System.out.println(test.totSent);
     }
 }

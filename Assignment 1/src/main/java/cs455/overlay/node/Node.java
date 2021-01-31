@@ -15,29 +15,27 @@ public class Node {
     private DataInputStream din;
     public int sendTracker = 0;
     public int recieveTracker = 0;
-    public long totRecived = 0;
-    public long totSent = 0;
+    public long recieveSummation = 0;
+    public long sendSummation = 0;
     private int port;
+    public String hostName;
 
-    public Node(int port) {
+    public Node(String hostName, int port) {
         this.port = port;
+        this.hostName = hostName;
     }
 
     public void reciever(String serverAddress, int port) throws IOException {
         try {
             this.socket = new Socket(serverAddress, port);
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         this.din = new DataInputStream(this.socket.getInputStream());
         for (int i = 0; i < 5; i++) {
             this.recieveTracker++;
             int temp = din.readInt();
-            this.totRecived += temp;
+            this.recieveSummation += temp;
             System.out.println("Recieved the number " + temp);
         }
     }
@@ -48,12 +46,7 @@ public class Node {
     }
 
     public void sender() throws IOException {
-        try {
-            this.serverSocket = new ServerSocket(this.port, 5);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        this.serverSocket = new ServerSocket(this.port, 5);
         this.socket = this.serverSocket.accept();
         this.dout = new DataOutputStream(this.socket.getOutputStream());
         Random rand = new Random();
@@ -62,7 +55,7 @@ public class Node {
             randInt = rand.nextInt();
             this.dout.writeInt(randInt);
             this.sendTracker++;
-            this.totSent += randInt;
+            this.sendSummation += randInt;
             System.out.println("Sending the number " + randInt);
         }
     }
@@ -72,28 +65,34 @@ public class Node {
         this.serverSocket.close();
     }
 
+    public void register() throws IOException {
+        try {
+            this.socket = new Socket("sacramento.cs.colostate.edu", 8952);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        this.dout = new DataOutputStream(this.socket.getOutputStream());
+
+    }
+
     public static void main(String[] args) {
-        Node test = new Node(8652);
+        Node test = new Node("cod", 8652);
         if (args[0].equals("Server")) {
-            try{
+            try {
                 test.sender();
                 test.closeSender();
-            }
-            catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
         } else {
-            try{
+            try {
                 test.reciever("sacramento.cs.colostate.edu", 8652);
                 test.closeReciever();
-            }
-            catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            
+
         }
-        System.out.println(test.totSent);
     }
 }

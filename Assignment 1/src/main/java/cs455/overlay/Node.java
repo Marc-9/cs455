@@ -1,4 +1,4 @@
-package cs455.overlay.node;
+package cs455.overlay;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -72,6 +72,12 @@ public class Node {
             e.printStackTrace();
         }
         this.dout = new DataOutputStream(this.socket.getOutputStream());
+        byte[] identifier = this.hostName.getBytes();
+        int hostNameLength = identifier.length;
+        this.dout.writeInt(hostNameLength);
+        this.dout.write(identifier);
+        this.dout.close();
+        this.socket.close();
 
     }
 

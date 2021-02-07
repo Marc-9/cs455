@@ -1,14 +1,21 @@
 package cs455.overlay;
 
+
 import java.io.DataInputStream;
+import java.io.ObjectOutputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.File;
+import java.io.Serializable;
 import java.net.ServerSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 import java.util.Random;
 
-public class Node {
+public class Node implements Serializable{
     private Socket socket;
     private ServerSocket serverSocket;
     private DataOutputStream dout;
@@ -65,6 +72,16 @@ public class Node {
         this.serverSocket.close();
     }
 
+    public void test(){
+        try{
+            System.out.println(InetAddress.getLocalHost().getHostName());
+        }
+        
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void register() throws IOException {
         try {
             this.socket = new Socket("sacramento.cs.colostate.edu", 8952);
@@ -76,29 +93,58 @@ public class Node {
         int hostNameLength = identifier.length;
         this.dout.writeInt(hostNameLength);
         this.dout.write(identifier);
+
+       /* DataOutputStream serverOut = new DataOutputStream(s.getOutputStream()); 
+        DataInputStream serverIn = new DataInputStream(s.getInputStream());
+        byte[] identifier = this.hostName.getBytes();
+        int hostNameLength = identifier.length;
+        this.dout.writeInt(hostNameLength);
+        this.dout.write(identifier);
+        while(true){
+            int messageType = din.readInt();
+            if(messageType == 1){
+                int nameLength = din.readInt();
+                byte[] identifierBytes = new byte[nameLength];
+                din.readFully(identifierBytes);
+                String nodeHostname = new String(identifierBytes);
+                int port = din.readInt();
+
+
+            }
+
+        }
         this.dout.close();
-        this.socket.close();
+        this.socket.close();*/
 
     }
 
     public static void main(String[] args) {
-        Node test = new Node("cod", 8652);
-        if (args[0].equals("Server")) {
-            try {
-                test.sender();
-                test.closeSender();
-            } catch (IOException e) {
-                e.printStackTrace();
+        String name;
+        int portNum = 0;
+        Node node;
+        try {
+            name = InetAddress.getLocalHost().getHostName();
+            File myObj = new File("machines.txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String[] data = myReader.nextLine().split(",",2);
+                if(data[0].equals(name)){
+                    portNum = Integer.parseInt(data[1]);
+                    break;
+                }
             }
-
-        } else {
-            try {
-                test.reciever("sacramento.cs.colostate.edu", 8652);
-                test.closeReciever();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            node = new Node(name,portNum);
+            myReader.close();
+            node.register();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

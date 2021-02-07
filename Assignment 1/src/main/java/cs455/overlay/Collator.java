@@ -4,11 +4,18 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.ObjectInputStream;
+import java.net.InetAddress;
+import java.io.File;
 import java.io.FileReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
+import java.lang.ClassNotFoundException;
 
 public class Collator {
     private Socket socket;
@@ -17,51 +24,63 @@ public class Collator {
     private DataInputStream din;
     public int portNumber;
     public String hostName;
+    public int totConnections;
     public int connections = 0;
     public int totRounds = 0;
     public ArrayList<Node> nodes = new ArrayList<Node>();
 
-    public Collator(String hostName, int portNumber) {
+    public Collator(String hostName, int portNumber, int totConnections) {
         this.hostName = hostName;
         this.portNumber = portNumber;
+        this.totConnections = totConnections;
         try {
-            this.serverSocket = new ServerSocket(this.portNumber, 10);
+            this.serverSocket = new ServerSocket(this.portNumber, totConnections);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void listenForRegistrations() throws IOException {
-        while (this.connections == 0 || (this.totRounds / 25000) < this.connections) {
+        while (this.connections < this.totConnections) {
             this.socket = this.serverSocket.accept();
-            this.din = this.socket.getInputStream();
-            ObjectInputStream objectInputStream = new ObjectInputStream(this.din);
-            this.nodes.add(objectInputStream.readObject());
-            //this.din = new DataInputStream(this.socket.getInputStream());
-            //int nameLength = din.readInt();
-            //byte[] identifierBytes = new byte[nameLength];
-            //din.readFully(identifierBytes);
+
+            this.din = new DataInputStream(this.socket.getInputStream());
+            int nameLength = din.readInt();
+            byte[] identifierBytes = new byte[nameLength];
+            din.readFully(identifierBytes);
             this.connections++;
             //this.nodes.add(new String(identifierBytes));
-            //System.out.println(new String(identifierBytes));
+            System.out.println(new String(identifierBytes));
+
+            /*DataInputStream dis = new DataInputStream(s.getInputStream()); 
+            DataOutputStream dos = new DataOutputStream(s.getOutputStream()); 
+            int nameLength = din.readInt();
+            byte[] identifierBytes = new byte[nameLength];
+            din.readFully(identifierBytes);
+            String nodeHostname = new String(identifierBytes);
+            ArrayList<String> alteredServerList = newServerList(nodeHostName, this.serverList);
+
+
+            Thread t = new ClientHandler(s, dis, dos, new String(identifierBytes), alteredServerList); 
+            nodes.push(t);*/
             this.socket.close();
-            this.din.close();
-            if(this.connections >= 2){
-                this.startMessagePassing();
-            }
+
+            this.connections++;
+
         }
 
        
 
     }
 
-    public void startMessagePassing(){
-        for(int i = 0; i < this.connections; i++){
-            if(this.nodes[i].sendTracker < 25000){
-                int recieverIndex = this.randomNumber(this.connections, i);
-                this.nodes[i].sender();
-                this.nodes[recieverIndex].reciever(this.nodes[i].hostName, 8952);
-                this.totRounds += 25000;
+
+
+    public void startMessagePassing() throws IOException{ 
+        for(int j = 0; j < 5000; j++){
+            for(int i = 0; i < this.connections; i++){
+                int recieverIndex = this.randomNum(this.connections, i);
+                this.nodes.get(i).sender();
+                this.nodes.get(recieverIndex).reciever(this.nodes.get(i).hostName, 8952);
             }
         }
     }
@@ -75,19 +94,38 @@ public class Collator {
     }
 
     public static void main(String[] args) {
-        BufferedReader reader;
+        String name;
+        int portNum =0;
+        int totHosts = 0;
+        Collator master;
         try {
-            reader = new BufferedReader(new FileReader("machines.txt"));
-            Collator master = new Collator(reader.readLine(), 8952);
-            String line = reader.readLine();
-            while (line != null) {
-
+            name = InetAddress.getLocalHost().getHostName();
+            File myObj = new File("machines.txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String[] data = myReader.nextLine().split(",",2);
+                if(data[0].equals(name)){
+                    portNum = Integer.parseInt(data[1]);  
+                }
+                else{
+                    ++totHosts;
+                }
+                
             }
-            reader.close();
-        } catch (IOException e) {
+            myReader.close();
+            master = new Collator(name,portNum,totHosts);
+            master.listenForRegistrations();
+            master.startMessagePassing();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
             e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
         }
 
     }
+       
 
 }

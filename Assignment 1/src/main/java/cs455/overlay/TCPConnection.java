@@ -11,27 +11,34 @@ public class TCPConnection extends Thread{
     //private Socket socket;
     public int port;
     public boolean cycle = true;
+    public int received = 0;
+    public Long receivedSummation = 0L;
 
     public TCPConnection(int port){
         this.port = port;
     }
 
-    public void setCycle(){
-        this.cycle = false;
+    public void interrupt(){
+    	try{
+        	this.serverSocket.close();
+        }
+        catch(IOException e){
+
+        }
     }
 
     public void run(){
         try {
             this.serverSocket = new ServerSocket(this.port, 10);
-            Socket socket;
             //Random rand = new Random();
             //int randInt = 0;
-            while(cycle){
-                socket = this.serverSocket.accept();
+            while(true){
+                Socket socket = this.serverSocket.accept();
                 DataInputStream newDin = new DataInputStream(socket.getInputStream());
                 for(int i = 0; i < 5; i++){
                     int temp = newDin.readInt();
-                    System.out.println("Recieved the number " + temp);
+                    ++this.received;
+                    this.receivedSummation += temp;
                 }
                 newDin.close();
                 socket.close();

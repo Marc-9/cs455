@@ -1,5 +1,6 @@
 package cs455.overlay;
 
+import cs455.overlay.TCPServer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -28,12 +29,12 @@ public class Collator {
     public int connections = 0;
     public int totRounds = 0;
     public ArrayList<Socket> nodes = new ArrayList<Socket>();
-    public ArrayList<String[]> socketInfo = new ArrayList<String[]>();
-    public ArrayList<DataInputStream> inputStreams = new ArrayList<DataInputStream>();
+    public ArrayList<String> socketInfo = new ArrayList<String>();
     public ArrayList<DataOutputStream> outputStreams = new ArrayList<DataOutputStream>();
+    public ArrayList<TCPServer> threads = new ArrayList<TCPServer>();
     public int totSent = 0;
-    public long recieveSummation = 0;
-    public long sendSummation = 0;
+    public static Long recievedSummation = 0L;
+    public static Long sendSummation = 0L;
 
     public Collator(String hostName, int portNumber, int totConnections) {
         this.hostName = hostName;
@@ -49,21 +50,18 @@ public class Collator {
     public void listenForRegistrations() throws IOException {
         while (this.connections < this.totConnections) {
             this.socket = this.serverSocket.accept();
-            this.connections++;
-            DataInputStream din2 = new DataInputStream(this.socket.getInputStream());
-            DataOutputStream dout9 = new DataOutputStream(this.socket.getOutputStream());
-            inputStreams.add(din2);
-            outputStreams.add(dout9);
-            int nameLength = din2.readInt();
-            byte[] identifierBytes = new byte[nameLength];
-            din2.readFully(identifierBytes);
-            int socketPort = din2.readInt();
             this.nodes.add(this.socket);
-
+            this.din = new DataInputStream(this.socket.getInputStream());
+            this.outputStreams.add(new DataOutputStream(this.socket.getOutputStream()));
+            int nameLength = this.din.readInt();
+            byte[] identifierBytes = new byte[nameLength];
+            this.din.readFully(identifierBytes);
             String socketName = new String(identifierBytes);
-            String[] temp = {socketName, String.valueOf(socketPort)};
-            this.socketInfo.add(temp);
+            this.socketInfo.add(socketName);
+            TCPServer thread1 = new TCPServer(this.din);
+            this.threads.add(thread1);
             System.out.println(socketName);
+            this.connections++;
         }
 
 
@@ -72,15 +70,33 @@ public class Collator {
 
 
     public void startMessagePassing() throws IOException{
-        for(int i = 0; i < this.connections-1; i++){
-            System.out.println("Starting with " + this.socketInfo.get(i)[0]);
+    	for(int i = 0; i < this.connections; i++){
+            this.threads.get(i).start();
+        }
+        for(int i = 0; i < this.connections; i++){
             this.outputStreams.get(i).writeInt(4);
         }
+        while(this.checkThreads()){
+
+        }
+        for(int i = 0; i < this.connections; i++){
+        	this.threads.clear();
+        	this.din = new DataInputStream(this.nodes.get(i).getInputStream());
+			TCPServer thread1 = new TCPServer(this.din);
+            this.threads.add(thread1);
+            thread1.start();
+            this.outputStreams.get(i).writeInt(0);
+        }
+        while(this.checkThreads()){
+
+        }
+        System.out.println(Collator.recievedSummation + " " + Collator.sendSummation);
+
+
+
+
+
     		/*for(int j = 0; j < 100; j++){
-
-
-
-
 
     			//DataOutputStream dout2 = new DataOutputStream(this.nodes.get(i).getOutputStream());
     			//DataInputStream din5 = new DataInputStream(this.nodes.get(i).getInputStream());
@@ -123,8 +139,18 @@ public class Collator {
     	}*/
         //String output = "Sent- " + String.valueOf(this.sendSummation) + " Recieved- " + String.valueOf(this.recieveSummation);
         //System.out.println(output);
-        this.test();
+        
 
+    }
+
+    public boolean checkThreads(){
+    	boolean alive = false;
+    	for(int i = 0; i < this.threads.size(); i++){
+    		if(this.threads.get(i).isAlive()){
+    			alive = true;
+    		}
+    	}
+    	return alive;
     }
 
 
@@ -132,9 +158,7 @@ public class Collator {
     public void test(){
         try {
             for(int i = 0; i < this.connections; i++){
-                DataOutputStream dout5 = new DataOutputStream(this.nodes.get(i).getOutputStream());
-                dout5.writeInt(0);
-
+                this.outputStreams.get(i).writeInt(0);
             }
 
         }
@@ -158,7 +182,7 @@ public class Collator {
         int totHosts = 0;
         Collator master;
         try {
-            name = InetAddress.getLocalHost().getHostName();
+            name = InetAddress.getLocalHost().getHostName() + ".cs.colostate.edu";
             File myObj = new File("machines.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
@@ -174,8 +198,8 @@ public class Collator {
             myReader.close();
             master = new Collator(name,portNum,totHosts);
             master.listenForRegistrations();
-            //master.test();
             master.startMessagePassing();
+            master.test();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

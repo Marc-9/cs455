@@ -1,6 +1,6 @@
 package cs455.overlay;
 
-
+import cs455.overlay.TCPConnection;
 import java.io.DataInputStream;
 import java.io.ObjectOutputStream;
 import java.io.DataOutputStream;
@@ -26,10 +26,14 @@ public class Node implements Serializable{
     public long sendSummation = 0;
     private int port;
     public String hostName;
+    public TCPConnection tcp;
+
 
     public Node(String hostName, int port) {
         this.port = port;
         this.hostName = hostName;
+        this.tcp = new TCPConnection(port);
+        this.tcp.start();
     }
 
     public void reciever(String serverAddress, int port) throws IOException {
@@ -141,8 +145,8 @@ public class Node implements Serializable{
         this.dout.writeInt(this.port);
         while(true){
             int messageType = this.din.readInt();
-            //System.out.println(messageType);
             if(messageType == 0){
+                this.tcp.setCycle();
                 break;
             }
             else if(messageType == 1){
@@ -156,6 +160,9 @@ public class Node implements Serializable{
             else if(messageType == 3){
                 this.messageType3();
                 this.dout.writeInt(0);
+            }
+            else if(messageType == 4){
+                this.testThread();
             }
 
         }
@@ -182,6 +189,25 @@ public class Node implements Serializable{
         this.dout.close();
         this.socket.close();*/
 
+    }
+
+    public void testThread(){
+        try {
+            Socket socket = new Socket("cod.cs.colostate.edu", 8952);
+            DataOutputStream newdout = new DataOutputStream(socket.getOutputStream());
+            Random rand = new Random();
+            int randInt = 0;
+            for (int i = 0; i < 5; i++) {
+                randInt = rand.nextInt();
+                newdout.writeInt(randInt);
+                this.sendTracker++;
+                this.sendSummation += randInt;
+                System.out.println("Sending the number " + randInt);
+            }
+        }
+        catch(IOException e){
+
+        }
     }
 
     public static void main(String[] args) {

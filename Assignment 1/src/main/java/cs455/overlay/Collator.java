@@ -72,50 +72,57 @@ public class Collator {
 
 
     public void startMessagePassing() throws IOException{
-        for(int i = 0; i < this.connections; i++){
+        for(int i = 0; i < this.connections-1; i++){
             System.out.println("Starting with " + this.socketInfo.get(i)[0]);
-            for(int j = 0; j < 1000; j++){
-                //DataOutputStream dout2 = new DataOutputStream(this.nodes.get(i).getOutputStream());
-                //DataInputStream din5 = new DataInputStream(this.nodes.get(i).getInputStream());
-                this.outputStreams.get(i).writeInt(2);
-                this.inputStreams.get(i).readInt();
-                int randomNum = this.randomNum(this.connections-1, i);
-                //DataOutputStream dout3 = new DataOutputStream(this.nodes.get(randomNum).getOutputStream());
-                //DataInputStream din8 = new DataInputStream(this.nodes.get(randomNum).getInputStream());
-                this.outputStreams.get(randomNum).writeInt(3);
-                //dout3.writeInt(3);
-                byte[] identifier = this.socketInfo.get(i)[0].getBytes();
-                int hostNameLength = identifier.length;
-                this.outputStreams.get(randomNum).writeInt(hostNameLength);
-                this.outputStreams.get(randomNum).write(identifier);
-                this.outputStreams.get(randomNum).writeInt(Integer.parseInt(this.socketInfo.get(i)[1]));
-                //dout3.writeInt(hostNameLength);
-                //dout3.write(identifier);
-                //dout3.writeInt(Integer.parseInt(this.socketInfo.get(i)[1]));
-                //din5.readInt();
-                this.inputStreams.get(i).readInt();
-                this.inputStreams.get(randomNum).readInt();
-                //din8.readInt();
-
-            }
+            this.outputStreams.get(i).writeInt(4);
         }
-        for(int i = 0; i < this.connections; i++){
-            DataOutputStream dout4 = new DataOutputStream(this.nodes.get(i).getOutputStream());
-            DataInputStream din4 = new DataInputStream(this.nodes.get(i).getInputStream());
-            dout4.writeInt(1);
-            int sendTracker = din4.readInt();
-            int recieveTracker = din4.readInt();
-            Long recieveSummation2 = din4.readLong();
-            Long sendSummation2 = din4.readLong();
-            this.recieveSummation += recieveSummation2;
-            this.sendSummation += sendSummation2;
-            String output = this.socketInfo.get(i)[0] + " sent " + String.valueOf(sendTracker) + " for a total of " + String.valueOf(sendSummation) + " and recieved " + String.valueOf(recieveTracker) + " for a total of " + String.valueOf(recieveSummation);
-            System.out.println(output);
-            din4.readInt();
+    		/*for(int j = 0; j < 100; j++){
 
-        }
-        String output = "Sent- " + String.valueOf(this.sendSummation) + " Recieved- " + String.valueOf(this.recieveSummation);
-        System.out.println(output);
+
+
+
+
+    			//DataOutputStream dout2 = new DataOutputStream(this.nodes.get(i).getOutputStream());
+    			//DataInputStream din5 = new DataInputStream(this.nodes.get(i).getInputStream());
+    			this.outputStreams.get(i).writeInt(2);
+    			this.inputStreams.get(i).readInt();
+    			int randomNum = this.randomNum(this.connections-1, i);
+    			//DataOutputStream dout3 = new DataOutputStream(this.nodes.get(randomNum).getOutputStream());
+    			//DataInputStream din8 = new DataInputStream(this.nodes.get(randomNum).getInputStream());
+    			this.outputStreams.get(randomNum).writeInt(3);
+    			//dout3.writeInt(3);
+    			byte[] identifier = this.socketInfo.get(i)[0].getBytes();
+        		int hostNameLength = identifier.length;
+        		this.outputStreams.get(randomNum).writeInt(hostNameLength);
+        		this.outputStreams.get(randomNum).write(identifier);
+        		this.outputStreams.get(randomNum).writeInt(Integer.parseInt(this.socketInfo.get(i)[1]));
+        		//dout3.writeInt(hostNameLength);
+        		//dout3.write(identifier);
+        		//dout3.writeInt(Integer.parseInt(this.socketInfo.get(i)[1]));
+        		//din5.readInt();
+        		this.inputStreams.get(i).readInt();
+        		this.inputStreams.get(randomNum).readInt();
+        		//din8.readInt();
+
+    		}
+    	}
+    	for(int i = 0; i < this.connections; i++){
+    		DataOutputStream dout4 = new DataOutputStream(this.nodes.get(i).getOutputStream());
+    		DataInputStream din4 = new DataInputStream(this.nodes.get(i).getInputStream());
+    		dout4.writeInt(1);
+    		int sendTracker = din4.readInt();
+    		int recieveTracker = din4.readInt();
+    		Long recieveSummation2 = din4.readLong();
+    		Long sendSummation2 = din4.readLong();
+    		this.recieveSummation += recieveSummation2;
+    		this.sendSummation += sendSummation2;
+    		String output = this.socketInfo.get(i)[0] + " sent " + String.valueOf(sendTracker) + " for a total of " + String.valueOf(sendSummation2) + " and recieved " + String.valueOf(recieveTracker) + " for a total of " + String.valueOf(recieveSummation2);
+    		System.out.println(output);
+    		din4.readInt();
+
+    	}*/
+        //String output = "Sent- " + String.valueOf(this.sendSummation) + " Recieved- " + String.valueOf(this.recieveSummation);
+        //System.out.println(output);
         this.test();
 
     }

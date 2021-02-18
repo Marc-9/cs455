@@ -8,7 +8,6 @@ import java.util.Random;
 
 public class TCPServer extends Thread{
     private ServerSocket serverSocket;
-    //private Socket socket;
     public DataInputStream din;
     public boolean cycle = true;
     public Long recievedSummation = 0L;
@@ -35,13 +34,13 @@ public class TCPServer extends Thread{
                     int recieveTracker = this.din.readInt();
                     this.recievedSummation = this.din.readLong();
                     this.sendSummation= this.din.readLong();
-                    this.alterGlobals();
+                    Collator.alterGlobals(sendTracker,recieveTracker, this.recievedSummation, this.sendSummation);
 
-                    String output = socketName + " sent " + String.valueOf(sendTracker) + " for a total of " + String.valueOf(this.sendSummation) + " and recieved " + String.valueOf(recieveTracker) + " for a total of " + String.valueOf(this.recievedSummation);
+                    String output = socketName + " sent " + String.valueOf(sendTracker) + " for a total of " + String.valueOf(this.sendSummation) + " and received " + String.valueOf(recieveTracker) + " for a total of " + String.valueOf(this.recievedSummation);
                     System.out.println(output);
                 }
                 break;
-                
+
             }
 
         }
@@ -50,10 +49,6 @@ public class TCPServer extends Thread{
         }
     }
 
-    public synchronized void alterGlobals(){
-        Collator.recievedSummation += this.recievedSummation;
-        Collator.sendSummation += this.sendSummation;
-    }
 
 
 }

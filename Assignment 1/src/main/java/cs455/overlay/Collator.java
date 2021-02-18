@@ -1,5 +1,6 @@
 package cs455.overlay;
 
+import cs455.overlay.TCPServer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -28,12 +29,14 @@ public class Collator {
     public int connections = 0;
     public int totRounds = 0;
     public ArrayList<Socket> nodes = new ArrayList<Socket>();
-    public ArrayList<String[]> socketInfo = new ArrayList<String[]>();
-    public ArrayList<DataInputStream> inputStreams = new ArrayList<DataInputStream>();
+    public ArrayList<String> socketInfo = new ArrayList<String>();
     public ArrayList<DataOutputStream> outputStreams = new ArrayList<DataOutputStream>();
+    public ArrayList<TCPServer> threads = new ArrayList<TCPServer>();
     public int totSent = 0;
-    public long recieveSummation = 0;
-    public long sendSummation = 0;
+    public static Long recievedSummation = 0L;
+    public static Long sendSummation = 0L;
+    public static int sendTracker = 0;
+    public static int recieveTracker = 0;
 
     public Collator(String hostName, int portNumber, int totConnections) {
         this.hostName = hostName;
@@ -49,21 +52,18 @@ public class Collator {
     public void listenForRegistrations() throws IOException {
         while (this.connections < this.totConnections) {
             this.socket = this.serverSocket.accept();
-            this.connections++;
-            DataInputStream din2 = new DataInputStream(this.socket.getInputStream());
-            DataOutputStream dout9 = new DataOutputStream(this.socket.getOutputStream());
-            inputStreams.add(din2);
-            outputStreams.add(dout9);
-            int nameLength = din2.readInt();
-            byte[] identifierBytes = new byte[nameLength];
-            din2.readFully(identifierBytes);
-            int socketPort = din2.readInt();
             this.nodes.add(this.socket);
-
+            this.din = new DataInputStream(this.socket.getInputStream());
+            this.outputStreams.add(new DataOutputStream(this.socket.getOutputStream()));
+            int nameLength = this.din.readInt();
+            byte[] identifierBytes = new byte[nameLength];
+            this.din.readFully(identifierBytes);
             String socketName = new String(identifierBytes);
-            String[] temp = {socketName, String.valueOf(socketPort)};
-            this.socketInfo.add(temp);
+            this.socketInfo.add(socketName);
+            TCPServer thread1 = new TCPServer(this.din);
+            this.threads.add(thread1);
             System.out.println(socketName);
+            this.connections++;
         }
 
 
@@ -73,51 +73,47 @@ public class Collator {
 
     public void startMessagePassing() throws IOException{
         for(int i = 0; i < this.connections; i++){
-            System.out.println("Starting with " + this.socketInfo.get(i)[0]);
-            for(int j = 0; j < 1000; j++){
-                //DataOutputStream dout2 = new DataOutputStream(this.nodes.get(i).getOutputStream());
-                //DataInputStream din5 = new DataInputStream(this.nodes.get(i).getInputStream());
-                this.outputStreams.get(i).writeInt(2);
-                this.inputStreams.get(i).readInt();
-                int randomNum = this.randomNum(this.connections-1, i);
-                //DataOutputStream dout3 = new DataOutputStream(this.nodes.get(randomNum).getOutputStream());
-                //DataInputStream din8 = new DataInputStream(this.nodes.get(randomNum).getInputStream());
-                this.outputStreams.get(randomNum).writeInt(3);
-                //dout3.writeInt(3);
-                byte[] identifier = this.socketInfo.get(i)[0].getBytes();
-                int hostNameLength = identifier.length;
-                this.outputStreams.get(randomNum).writeInt(hostNameLength);
-                this.outputStreams.get(randomNum).write(identifier);
-                this.outputStreams.get(randomNum).writeInt(Integer.parseInt(this.socketInfo.get(i)[1]));
-                //dout3.writeInt(hostNameLength);
-                //dout3.write(identifier);
-                //dout3.writeInt(Integer.parseInt(this.socketInfo.get(i)[1]));
-                //din5.readInt();
-                this.inputStreams.get(i).readInt();
-                this.inputStreams.get(randomNum).readInt();
-                //din8.readInt();
-
-            }
+            this.threads.get(i).start();
         }
         for(int i = 0; i < this.connections; i++){
-            DataOutputStream dout4 = new DataOutputStream(this.nodes.get(i).getOutputStream());
-            DataInputStream din4 = new DataInputStream(this.nodes.get(i).getInputStream());
-            dout4.writeInt(1);
-            int sendTracker = din4.readInt();
-            int recieveTracker = din4.readInt();
-            Long recieveSummation2 = din4.readLong();
-            Long sendSummation2 = din4.readLong();
-            this.recieveSummation += recieveSummation2;
-            this.sendSummation += sendSummation2;
-            String output = this.socketInfo.get(i)[0] + " sent " + String.valueOf(sendTracker) + " for a total of " + String.valueOf(sendSummation) + " and recieved " + String.valueOf(recieveTracker) + " for a total of " + String.valueOf(recieveSummation);
-            System.out.println(output);
-            din4.readInt();
+            this.outputStreams.get(i).writeInt(4);
+        }
+        while(this.checkThreads()){
 
         }
-        String output = "Sent- " + String.valueOf(this.sendSummation) + " Recieved- " + String.valueOf(this.recieveSummation);
-        System.out.println(output);
-        this.test();
+        for(int i = 0; i < this.connections; i++){
+            this.threads.clear();
+            this.din = new DataInputStream(this.nodes.get(i).getInputStream());
+            TCPServer thread1 = new TCPServer(this.din);
+            this.threads.add(thread1);
+            thread1.start();
+            this.outputStreams.get(i).writeInt(0);
+        }
+        while(this.checkThreads()){
 
+        }
+        System.out.println("The system sent a total of " + Collator.sendTracker + " messages and recieved " + Collator.recieveTracker +
+                " for a total sum of " + Collator.sendSummation + " sent and " + Collator.recievedSummation + " received");
+
+
+
+    }
+
+    public static synchronized void alterGlobals(int sendTracker,int recieveTracker, Long recievedSummation, Long sendSummation){
+        Collator.recievedSummation += recievedSummation;
+        Collator.sendSummation += sendSummation;
+        Collator.recieveTracker += recieveTracker;
+        Collator.sendTracker += sendTracker;
+    }
+
+    public boolean checkThreads(){
+        boolean alive = false;
+        for(int i = 0; i < this.threads.size(); i++){
+            if(this.threads.get(i).isAlive()){
+                alive = true;
+            }
+        }
+        return alive;
     }
 
 
@@ -125,9 +121,7 @@ public class Collator {
     public void test(){
         try {
             for(int i = 0; i < this.connections; i++){
-                DataOutputStream dout5 = new DataOutputStream(this.nodes.get(i).getOutputStream());
-                dout5.writeInt(0);
-
+                this.outputStreams.get(i).writeInt(0);
             }
 
         }
@@ -151,7 +145,7 @@ public class Collator {
         int totHosts = 0;
         Collator master;
         try {
-            name = InetAddress.getLocalHost().getHostName();
+            name = InetAddress.getLocalHost().getHostName() + ".cs.colostate.edu";
             File myObj = new File("machines.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
@@ -167,8 +161,8 @@ public class Collator {
             myReader.close();
             master = new Collator(name,portNum,totHosts);
             master.listenForRegistrations();
-            //master.test();
             master.startMessagePassing();
+            master.test();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

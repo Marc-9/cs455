@@ -1,3 +1,6 @@
-sacramento,8952
-albany,8952
-cod,8952
+sacramento.cs.colostate.edu,8952
+albany.cs.colostate.edu,8952
+cod.cs.colostate.edu,8952
+annapolis.cs.colostate.edu,8952
+atlanta.cs.colostate.edu,7213
+augusta.cs.colostate.edu,8723

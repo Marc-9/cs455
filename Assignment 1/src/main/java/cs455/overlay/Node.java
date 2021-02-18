@@ -1,6 +1,6 @@
 package cs455.overlay;
 
-
+import cs455.overlay.TCPConnection;
 import java.io.DataInputStream;
 import java.io.ObjectOutputStream;
 import java.io.DataOutputStream;
@@ -14,8 +14,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
 
-public class Node implements Serializable{
+public class Node{
     private Socket socket;
     private ServerSocket serverSocket;
     private DataOutputStream dout;
@@ -26,107 +28,37 @@ public class Node implements Serializable{
     public long sendSummation = 0;
     private int port;
     public String hostName;
+    public TCPConnection tcp;
+    static ArrayList<String[]> hostNames = new ArrayList<String[]>();
+
 
     public Node(String hostName, int port) {
         this.port = port;
         this.hostName = hostName;
-    }
-
-    public void reciever(String serverAddress, int port) throws IOException {
-        try {
-            Socket socket = new Socket(serverAddress, port);
-            DataInputStream newDin = new DataInputStream(socket.getInputStream());
-            for (int i = 0; i < 5; i++) {
-                this.recieveTracker++;
-                int temp = newDin.readInt();
-                this.recieveSummation += temp;
-                //System.out.println("Recieved the number " + temp);
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        this.tcp = new TCPConnection(port);
 
     }
 
-    public void closeReciever() throws IOException {
-        this.din.close();
-        this.socket.close();
-    }
 
-    public void sender() throws IOException {
-        this.serverSocket = new ServerSocket(this.port, 5);
-        this.dout.writeInt(0);
-        Socket socket = this.serverSocket.accept();
-        //System.out.println("connection accepted");
-        DataOutputStream newdout = new DataOutputStream(socket.getOutputStream());
-        Random rand = new Random();
-        int randInt = 0;
-        for (int i = 0; i < 5; i++) {
-            randInt = rand.nextInt();
-            newdout.writeInt(randInt);
-            this.sendTracker++;
-            this.sendSummation += randInt;
-            //System.out.println("Sending the number " + randInt);
-        }
-        this.serverSocket.close();
-        newdout.close();
-    }
-
-    public void closeSender() throws IOException {
-        this.dout.close();
-        this.serverSocket.close();
-    }
-
-    public void test(){
+    public void printData(){
         try{
-            System.out.println(InetAddress.getLocalHost().getHostName());
-        }
-
-        catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void messageType1(){
-        try{
+            byte[] identifier = this.hostName.getBytes();
+            int hostNameLength = identifier.length;
+            this.dout.writeInt(hostNameLength);
+            this.dout.write(identifier);
             this.dout.writeInt(this.sendTracker);
-            this.dout.writeInt(this.recieveTracker);
-            this.dout.writeLong(this.recieveSummation);
+            this.dout.writeInt(this.tcp.received);
+            this.dout.writeLong(this.tcp.receivedSummation);
             this.dout.writeLong(this.sendSummation);
         }
         catch(IOException e){
-        }
-    }
-
-    public void messageType2(){
-        try{
-            this.sender();
-        }
-        catch(IOException e){
-
-        }
-
-    }
-
-    public void messageType3(){
-        try{
-            //System.out.println("Here to set up connection");
-            int nameLength = this.din.readInt();
-            byte[] identifierBytes = new byte[nameLength];
-            this.din.readFully(identifierBytes);
-            String connectHostName = new String(identifierBytes);
-            connectHostName += ".cs.colostate.edu";
-            //System.out.println(connectHostName);
-            int connectPortNum = this.din.readInt();
-
-            this.reciever(connectHostName, connectPortNum);
-        }
-        catch(IOException e){
 
         }
     }
+
 
     public void register() throws IOException {
+        this.tcp.start();
         try {
             this.socket = new Socket("sacramento.cs.colostate.edu", 8952);
         } catch (UnknownHostException e) {
@@ -138,50 +70,43 @@ public class Node implements Serializable{
         int hostNameLength = identifier.length;
         this.dout.writeInt(hostNameLength);
         this.dout.write(identifier);
-        this.dout.writeInt(this.port);
         while(true){
             int messageType = this.din.readInt();
-            //System.out.println(messageType);
             if(messageType == 0){
+                this.tcp.interrupt();
+                this.dout.writeInt(0);
+                this.printData();
                 break;
             }
-            else if(messageType == 1){
-                this.messageType1();
-                this.dout.writeInt(0);
-            }
-            else if(messageType == 2){
-                this.messageType2();
-                this.dout.writeInt(0);
-            }
-            else if(messageType == 3){
-                this.messageType3();
-                this.dout.writeInt(0);
+            else if(messageType == 4){
+                this.testThread();
+                this.dout.writeInt(5);
             }
 
         }
 
-       /* DataOutputStream serverOut = new DataOutputStream(s.getOutputStream());
-        DataInputStream serverIn = new DataInputStream(s.getInputStream());
-        byte[] identifier = this.hostName.getBytes();
-        int hostNameLength = identifier.length;
-        this.dout.writeInt(hostNameLength);
-        this.dout.write(identifier);
-        while(true){
-            int messageType = din.readInt();
-            if(messageType == 1){
-                int nameLength = din.readInt();
-                byte[] identifierBytes = new byte[nameLength];
-                din.readFully(identifierBytes);
-                String nodeHostname = new String(identifierBytes);
-                int port = din.readInt();
+    }
 
-
+    public void testThread(){
+        try {
+            for(int rounds = 0; rounds < 5000; rounds++){
+                int ranNum = ThreadLocalRandom.current().nextInt(0,2);
+                Socket socket = new Socket(Node.hostNames.get(ranNum)[0], Integer.parseInt(Node.hostNames.get(ranNum)[1]));
+                DataOutputStream newdout = new DataOutputStream(socket.getOutputStream());
+                Random rand = new Random();
+                int randInt = 0;
+                for (int i = 0; i < 5; i++) {
+                    randInt = rand.nextInt();
+                    newdout.writeInt(randInt);
+                    this.sendTracker++;
+                    this.sendSummation += randInt;
+                    //System.out.println("Sending the number " + randInt);
+                }
             }
+        }
+        catch(IOException e){
 
         }
-        this.dout.close();
-        this.socket.close();*/
-
     }
 
     public static void main(String[] args) {
@@ -189,14 +114,20 @@ public class Node implements Serializable{
         int portNum = 0;
         Node node;
         try {
-            name = InetAddress.getLocalHost().getHostName();
+            name = InetAddress.getLocalHost().getHostName() + ".cs.colostate.edu";
             File myObj = new File("machines.txt");
             Scanner myReader = new Scanner(myObj);
+            String[][] machineNames = new String[10][2];
             while (myReader.hasNextLine()) {
                 String[] data = myReader.nextLine().split(",",2);
                 if(data[0].equals(name)){
                     portNum = Integer.parseInt(data[1]);
-                    break;
+                }
+                else if(data[0].equals("sacramento.cs.colostate.edu")){
+                    continue;
+                }
+                else{
+                    Node.hostNames.add(data);
                 }
             }
             node = new Node(name,portNum);
@@ -211,6 +142,7 @@ public class Node implements Serializable{
         catch (IOException e) {
             e.printStackTrace();
         }
+
 
     }
 }

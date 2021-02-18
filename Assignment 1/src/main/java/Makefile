@@ -3,6 +3,10 @@ all:
 	javac $(FILES)
 run:
 	java cs455/overlay/start
+server:
+	java cs455/overlay/Collator
+client:
+	java cs455/overlay/Node
 clean:
 	rm *.class
 package:

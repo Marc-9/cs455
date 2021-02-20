@@ -20,8 +20,8 @@ public class TCPConnection extends Thread{
     }
 
     public void interrupt(){
-        try{
-            this.serverSocket.close();
+    	try{
+        	this.serverSocket.close();
         }
         catch(IOException e){
 

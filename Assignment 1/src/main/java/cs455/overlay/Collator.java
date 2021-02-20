@@ -65,6 +65,7 @@ public class Collator {
             System.out.println(socketName);
             this.connections++;
         }
+        System.out.println("finished message passing starting");
 
 
     }
@@ -92,9 +93,9 @@ public class Collator {
         while(this.checkThreads()){
 
         }
-        System.out.println("The system sent a total of " + Collator.sendTracker + " messages and recieved " + Collator.recieveTracker +
-                " for a total sum of " + Collator.sendSummation + " sent and " + Collator.recievedSummation + " received");
-
+        System.out.println("The system sent a total of " + Collator.sendTracker + " messages and recieved " + Collator.recieveTracker + 
+            " for a total sum of " + Collator.sendSummation + " sent and " + Collator.recievedSummation + " received");
+        
 
 
     }
@@ -139,40 +140,6 @@ public class Collator {
         return ranNum;
     }
 
-    public static void main(String[] args) {
-        String name;
-        int portNum =0;
-        int totHosts = 0;
-        Collator master;
-        try {
-            name = InetAddress.getLocalHost().getHostName() + ".cs.colostate.edu";
-            File myObj = new File("machines.txt");
-            Scanner myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String[] data = myReader.nextLine().split(",",2);
-                if(data[0].equals(name)){
-                    portNum = Integer.parseInt(data[1]);
-                }
-                else{
-                    ++totHosts;
-                }
-
-            }
-            myReader.close();
-            master = new Collator(name,portNum,totHosts);
-            master.listenForRegistrations();
-            master.startMessagePassing();
-            master.test();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-        }
-
-    }
 
 
 }

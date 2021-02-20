@@ -93,9 +93,9 @@ public class Collator {
         while(this.checkThreads()){
 
         }
-        System.out.println("The system sent a total of " + Collator.sendTracker + " messages and recieved " + Collator.recieveTracker + 
-            " for a total sum of " + Collator.sendSummation + " sent and " + Collator.recievedSummation + " received");
-        
+        System.out.println("The system sent a total of " + Collator.sendTracker + " messages and recieved " + Collator.recieveTracker +
+                " for a total sum of " + Collator.sendSummation + " sent and " + Collator.recievedSummation + " received");
+
 
 
     }

@@ -18,6 +18,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 
 public class Node{
+    public String collatorHostName;
+    public int collatorPort;
     private Socket socket;
     private ServerSocket serverSocket;
     private DataOutputStream dout;
@@ -32,21 +34,23 @@ public class Node{
     static ArrayList<String[]> hostNames = new ArrayList<String[]>();
 
 
-    public Node(String hostName, int port) {
+    public Node(String hostName, int port, String collatorHostName, int collatorPort) {
         this.port = port;
         this.hostName = hostName;
+        this.collatorHostName = collatorHostName;
+        this.collatorPort = collatorPort;
         this.tcp = new TCPConnection(port);
-        
+
     }
 
 
     public void printData(){
-    	try{
+        try{
             byte[] identifier = this.hostName.getBytes();
-        	int hostNameLength = identifier.length;
-        	this.dout.writeInt(hostNameLength);
-        	this.dout.write(identifier);
-        	this.dout.writeInt(this.sendTracker);
+            int hostNameLength = identifier.length;
+            this.dout.writeInt(hostNameLength);
+            this.dout.write(identifier);
+            this.dout.writeInt(this.sendTracker);
             this.dout.writeInt(this.tcp.received);
             this.dout.writeLong(this.tcp.receivedSummation);
             this.dout.writeLong(this.sendSummation);
@@ -60,7 +64,7 @@ public class Node{
     public void register() throws IOException {
         this.tcp.start();
         try {
-            this.socket = new Socket("sacramento.cs.colostate.edu", 8952);
+            this.socket = new Socket(this.collatorHostName, this.collatorPort);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -89,20 +93,20 @@ public class Node{
 
     public void testThread(){
         try {
-        	for(int rounds = 0; rounds < 5000; rounds++){
-	        	int ranNum = ThreadLocalRandom.current().nextInt(0,Node.hostNames.size());
-	            Socket socket = new Socket(Node.hostNames.get(ranNum)[0], Integer.parseInt(Node.hostNames.get(ranNum)[1]));
-	            DataOutputStream newdout = new DataOutputStream(socket.getOutputStream());
-	            Random rand = new Random();
-	            int randInt = 0;
-	            for (int i = 0; i < 5; i++) {
-	                randInt = rand.nextInt();
-	                newdout.writeInt(randInt);
-	                this.sendTracker++;
-	                this.sendSummation += randInt;
-	                //System.out.println("Sending the number " + randInt);
-	            }
-	        }
+            for(int rounds = 0; rounds < 10000; rounds++){
+                int ranNum = ThreadLocalRandom.current().nextInt(0,Node.hostNames.size());
+                Socket socket = new Socket(Node.hostNames.get(ranNum)[0], Integer.parseInt(Node.hostNames.get(ranNum)[1]));
+                DataOutputStream newdout = new DataOutputStream(socket.getOutputStream());
+                Random rand = new Random();
+                int randInt = 0;
+                for (int i = 0; i < 5; i++) {
+                    randInt = rand.nextInt();
+                    newdout.writeInt(randInt);
+                    this.sendTracker++;
+                    this.sendSummation += randInt;
+                    //System.out.println("Sending the number " + randInt);
+                }
+            }
         }
         catch(IOException e){
 

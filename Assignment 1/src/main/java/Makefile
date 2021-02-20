@@ -2,7 +2,7 @@ FILES = cs455/overlay/*.java
 all:
 	javac $(FILES)
 run:
-	java cs455/overlay/start
+	java cs455/overlay/Start
 server:
 	java cs455/overlay/Collator
 client:

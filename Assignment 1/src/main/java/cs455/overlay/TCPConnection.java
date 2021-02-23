@@ -1,49 +1,34 @@
 package cs455.overlay;
 
-import java.net.ServerSocket;
 import java.io.DataInputStream;
 import java.net.Socket;
 import java.io.IOException;
-import java.util.Random;
 
 public class TCPConnection extends Thread{
-    private ServerSocket serverSocket;
 
     public int port;
-    public boolean cycle = true;
     public int received = 0;
     public Long receivedSummation = 0L;
+    public Socket socket;
 
-    public TCPConnection(int port){
-        //System.out.println("here");
-        this.port = port;
-    }
-
-    public void interrupt(){
-    	try{
-        	this.serverSocket.close();
-        }
-        catch(IOException e){
-
-        }
+    public TCPConnection(Socket socket){
+        this.socket = socket;
     }
 
     public void run(){
         try {
-            //System.out.println("here");
-            this.serverSocket = new ServerSocket(this.port, 10);
-            while(true){
-                Socket socket = this.serverSocket.accept();
-                DataInputStream newDin = new DataInputStream(socket.getInputStream());
-                for(int i = 0; i < 5; i++){
+            DataInputStream newDin = new DataInputStream(this.socket.getInputStream());
+            this.received = 0;
+            this.receivedSummation = 0L;
+            for(int i = 0; i < 5; i++){
+                int temp = newDin.readInt();
+                ++this.received;
+                this.receivedSummation += temp;
 
-                    int temp = newDin.readInt();
-                    ++this.received;
-                    this.receivedSummation += temp;
-                }
-                newDin.close();
-                socket.close();
             }
+            Node.alterVars(this.received, this.receivedSummation);
+            newDin.close();
+            this.socket.close();
 
         }
         catch(IOException e){

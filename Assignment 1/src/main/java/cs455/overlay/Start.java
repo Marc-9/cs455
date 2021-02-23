@@ -65,7 +65,7 @@ public class Start{
 							portNum = Integer.parseInt(data[1]);
 						}
 						else{
-
+							// Static variable used to randomly select a node to send messages to, it wont add itself to this list
 							Node.hostNames.add(data);
 						}
 					}
@@ -73,13 +73,14 @@ public class Start{
 			}
 			myReader.close();
 
-
+			// If the current node is the collator initalize it and start it methods, listen for connecting nodes and message passing
 			if(isCollator){
 				Collator master = new Collator(name, portNum, totHosts);
 				master.listenForRegistrations();
 				master.startMessagePassing();
-				master.test();
+				master.endConnection();
 			}
+			// You are a node, so register with the Collator and listen for commands
 			else{
 				Node node = new Node(name, portNum, collatorHostName, collatorPort);
 				node.register();

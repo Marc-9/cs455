@@ -25,6 +25,7 @@ public class TCPServer extends Thread{
         try {
             while(cycle){
                 int messageType = this.din.readInt();
+                // If the message is 0 that means all nodes have finsihed message passing and you should expect data coming in to the data input stream
                 if(messageType == 0){
                     int nameLength = this.din.readInt();
                     byte[] identifierBytes = new byte[nameLength];
@@ -34,11 +35,15 @@ public class TCPServer extends Thread{
                     int recieveTracker = this.din.readInt();
                     this.recievedSummation = this.din.readLong();
                     this.sendSummation= this.din.readLong();
+                    // Alter the static variables in collator, alterGlobals in a sychronized method in Collator so the lock for Collator must be obtained to alter its values
+                    // This way several threads cant alter these values at the same time.
                     Collator.alterGlobals(sendTracker,recieveTracker, this.recievedSummation, this.sendSummation);
 
                     String output = socketName + " sent " + String.valueOf(sendTracker) + " for a total of " + String.valueOf(this.sendSummation) + " and received " + String.valueOf(recieveTracker) + " for a total of " + String.valueOf(this.recievedSummation);
                     System.out.println(output);
                 }
+                // A 0 was not sent meaning it was a 5, therfore this node that sent the 5 has finished sending messages but other nodes may not be finished, lets kill the thread
+                
                 break;
 
             }

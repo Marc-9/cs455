@@ -1,8 +1,41 @@
-Assignment 1/.classpath
-Assignment 1/.project
-Assignment 1/.gradle/*
-Assignment 1/.settings/org.eclipse.buildship.core.prefs
-Assignment 1/src/main/java/cs455/overlay/node/Collator.class
-Assignment 1/src/main/java/cs455/overlay/start.class
-Assignment 1/src/main/java/cs455/overlay/util/Collator.class
-Assignment 1/src/main/java/cs455/overlay/node/Node.class
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
+### Java template
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+

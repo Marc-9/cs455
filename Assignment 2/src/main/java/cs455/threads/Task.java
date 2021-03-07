@@ -3,28 +3,31 @@ package cs455.threads;
 public class Task{
     public int arrayReference1;
     public int arrayReference2;
-    public int columnReference1;
-    public int rowReference1;
-    public int columnReference2;
-    public int rowReference2;
+    public int outputReference;
+    public int colNum;
+    public int rowNum;
+    public int rowOutput;
+    public int colOutput;
 
-    public Task(int arrayReference1, int arrayReference2, int columnReference1, int rowReference1, int columnReference2, int rowReference2){
+    public Task(int arrayReference1){
+        this.arrayReference1 = arrayReference1;
+    }
+
+    public Task(int arrayReference1, int arrayReference2, int colNum, int rowNum, int outputReference, int colOutput, int rowOutput){
         this.arrayReference1 = arrayReference1;
         this.arrayReference2 = arrayReference2;
-        this.columnReference1 = columnReference1;
-        this.rowReference1 = rowReference1;
-        this.columnReference2 = columnReference2;
-        this.rowReference2 = rowReference2;
+        this.outputReference = outputReference;
+        this.colNum = colNum;
+        this.rowNum = rowNum;
+        this.colOutput = colOutput;
+        this.rowOutput = rowOutput;
     }
 
     public void printTask(){
         // Forgot how to do simple java array inline initilization**
-        char[] temp = new char[4];
-        temp[0] = 'A';
-        temp[1] = 'B';
-        temp[2] = 'C';
-        temp[3] = 'D';
-        System.out.println("Task between matrixes " + temp[this.arrayReference1] + " and " + temp[this.arrayReference2] +
-                " column " + this.columnReference1 + " * " + this.columnReference2 + " and row " + this.rowReference1 + " * " + this.rowReference2);
+        char[] temp = new char[]{'A', 'B', 'C', 'D', 'X', 'Y', 'Z'};
+        System.out.println("Row " + this.rowNum + " in Matrix " + temp[this.arrayReference1] + " * Column " + this.colNum
+        + " in Matrix " + temp[this.arrayReference2] + " to set column " + this.colOutput + " and row " + this.rowOutput
+        + " in Matrix " + temp[this.outputReference]);
     }
 }

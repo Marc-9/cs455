@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TaskManager{
     private ArrayList<Task> taskList = new ArrayList<Task>();
     public AtomicInteger nextTask = new AtomicInteger(0);
+    
     //private List<Task> synlist;
     
 

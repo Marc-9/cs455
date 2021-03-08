@@ -4,6 +4,7 @@ import cs455.threads.ThreadWorker;
 import cs455.threads.Matrix;
 import cs455.threads.TaskManager;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import java.util.ArrayList;
 
@@ -15,14 +16,17 @@ public class ThreadsPool{
     static CountDownLatch latch;
     static CountDownLatch latch2;
     static CountDownLatch latch3;
+    static CountDownLatch latch4;
+    static AtomicBoolean zStart = new AtomicBoolean();
 
-    public ThreadsPool(int maxPoolSize, Matrix[] matrixReferences, TaskManager master, CountDownLatch latch, CountDownLatch latch2, CountDownLatch latch3){
+    public ThreadsPool(int maxPoolSize, Matrix[] matrixReferences, TaskManager master, CountDownLatch latch, CountDownLatch latch2, CountDownLatch latch3, CountDownLatch latch4){
         this.poolSize = maxPoolSize;
         this.matrixReferences = matrixReferences;
         this.masterReference = master;
         this.latch = latch;
         this.latch2 = latch2;
         this.latch3 = latch3;
+        this.latch4 = latch4;
         for(int i = 0; i < maxPoolSize; i++){
             workerThreads.add(new ThreadWorker(Matrix.dimensions));
         }

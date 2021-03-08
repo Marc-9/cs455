@@ -18,13 +18,24 @@ public class ThreadWorker extends Thread{
                 break;
             }
             else{
-
+                if(nextTask.outputReference == 6){
+                    MatrixThreads.zMatrix.startTimer.countDown();
+                }
                 int val = 0;
 
                 for(int i = 0; i < this.dimensions; i++){
                     val += ThreadsPool.matrixReferences[nextTask.arrayReference1].matrixValues[nextTask.rowNum][i] * ThreadsPool.matrixReferences[nextTask.arrayReference2].matrixValues[i][nextTask.colNum];
                 }
                 ThreadsPool.matrixReferences[nextTask.outputReference].matrixValues[nextTask.rowOutput][nextTask.colOutput] = val;
+                if(nextTask.outputReference == 4){
+                    ThreadsPool.latch2.countDown();
+                }
+                if(nextTask.outputReference == 5){
+                    ThreadsPool.latch3.countDown();
+                }
+                if(nextTask.outputReference == 6){
+                    ThreadsPool.latch4.countDown();
+                }
             }
         }
 

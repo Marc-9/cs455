@@ -11,7 +11,8 @@ public class ThreadWorker extends Thread{
 
     public void run(){
         while(true){
-            Task nextTask = ThreadsPool.masterReference.getNextTask();
+            int index = ThreadsPool.masterReference.nextTaskInt();
+            Task nextTask = ThreadsPool.masterReference.getNextTask(index);
             if(nextTask.arrayReference1 == -1){
                 ThreadsPool.latch.countDown();
                 break;

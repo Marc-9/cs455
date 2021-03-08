@@ -12,25 +12,28 @@ public class MatrixThreads{
         Matrix.generator.setSeed(Integer.parseInt(args[2]));
         Matrix A = new Matrix();
         A.fillMatrix();
-        //A.printMatrix();
+       //A.printMatrix();
 
         Matrix B = new Matrix();
         B.fillMatrix();
-        //B.printMatrix();
+       // B.printMatrix();
         Matrix C = new Matrix();
         C.fillMatrix();
-       // C.printMatrix();
+        //C.printMatrix();
         Matrix D = new Matrix();
         D.fillMatrix();
-       // D.printMatrix();
+        //D.printMatrix();
         Matrix X = new Matrix();
         Matrix Y = new Matrix();
         Matrix Z = new Matrix();
         Matrix[] matrixReferences = new Matrix[]{A,B,C,D,X,Y,Z};
         TaskManager master = new TaskManager(Matrix.dimensions);
         CountDownLatch latch = new CountDownLatch(Integer.parseInt(args[0]));
+        CountDownLatch latch2 = new CountDownLatch((int)Math.pow(Matrix.dimensions, Matrix.dimensions));
+        CountDownLatch latch3 = new CountDownLatch((int)Math.pow(Matrix.dimensions, Matrix.dimensions));
+        
 
-        ThreadsPool threadPool = new ThreadsPool(Integer.parseInt(args[0]), matrixReferences, master, latch);
+        ThreadsPool threadPool = new ThreadsPool(Integer.parseInt(args[0]), matrixReferences, master, latch, latch2, latch3);
 
         threadPool.startWorkers();
         try{

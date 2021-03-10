@@ -15,3 +15,16 @@ Below is a working demo of the program, for ease of use a script can be utlized 
 
 ![hw1demo](demo/hw1.gif)
 
+## Assignment 2
+
+- Generate 4 matrixes from a seed provided at run time
+- Create a thread pool with # of threads provided at run time
+- Do matrix multiplcation A * B = X and C * D = Y and X * Y = Z for matrixes of size 300 to 3000
+- Allow threads to complete tasks in a concurrent yet thread safe manner
+- Use latches to time the length it takes each matrix to finish execution
+- Sum of matrixes should always be the same when the same seed and same size is provided, regardless of the number of threads however execution should be faster
+- Use atomic operations to prevent race conditions
+
+java -jar Assignment 2.jar [Number of Threads] [Size of Matrixes] [Seed]
+
+![hw2demo](demo/hw2.gif)

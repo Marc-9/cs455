@@ -11,22 +11,17 @@ import java.util.ArrayList;
 public class ThreadsPool{
     private int poolSize;
     private ArrayList<ThreadWorker> workerThreads = new ArrayList<ThreadWorker>();
+    // Static because life is easier when I dont pass a million references
     static Matrix[] matrixReferences;
     static TaskManager masterReference;
-    static CountDownLatch latch;
-    static CountDownLatch latch2;
-    static CountDownLatch latch3;
-    static CountDownLatch latch4;
+    static CountDownLatch[] allLatches;
     static AtomicBoolean zStart = new AtomicBoolean();
 
-    public ThreadsPool(int maxPoolSize, Matrix[] matrixReferences, TaskManager master, CountDownLatch latch, CountDownLatch latch2, CountDownLatch latch3, CountDownLatch latch4){
+   public ThreadsPool(int maxPoolSize, Matrix[] matrixReferences, TaskManager master, CountDownLatch[] allLatches){ 
         this.poolSize = maxPoolSize;
         this.matrixReferences = matrixReferences;
         this.masterReference = master;
-        this.latch = latch;
-        this.latch2 = latch2;
-        this.latch3 = latch3;
-        this.latch4 = latch4;
+        this.allLatches = allLatches;
         for(int i = 0; i < maxPoolSize; i++){
             workerThreads.add(new ThreadWorker(Matrix.dimensions));
         }

@@ -39,18 +39,21 @@ public class Matrix{
                 sum += this.matrixValues[i][j];
             }
         }
-        if(this.name == 'X'){
-            System.out.println("Calculation of the matrix " + this.name + " (product of A and B) complete - sum of the elements in " + this.name + 
-                " is: " + sum);
+        switch(this.name){
+        	case 'X':
+        		this.printSpecific('A','B', sum);
+        		break;
+        	case 'Y':
+        		this.printSpecific('C','D', sum);
+        		break;
+        	case 'Z':
+        		this.printSpecific('X','Y', sum);
         }
-        else if(this.name == 'Y'){
-            System.out.println("Calculation of the matrix " + this.name + " (product of C and D) complete - sum of the elements in " + this.name + 
+    }
+
+    public void printSpecific(char matrix1, char matrix2, int sum){
+    	System.out.println("Calculation of the matrix " + this.name + " (product of " + matrix1 + " and " + matrix2 + " ) complete - sum of the elements in " + this.name + 
                 " is: " + sum);
-        }
-        else if(this.name == 'Z'){
-            System.out.println("Calculation of the matrix " + this.name + " (product of X and Y) complete - sum of the elements in " + this.name + 
-                " is: " + sum);
-        }
     }
 
     public void printMatrix(){
@@ -59,6 +62,7 @@ public class Matrix{
         }
         System.out.println();
     }
+    
     public void printRow(int[] row) {
         for (int i : row) {
             System.out.print(i);

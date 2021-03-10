@@ -21,10 +21,11 @@ public class Latches extends Thread{
 			long endTime = System.currentTimeMillis();
         	long duration = (endTime - startTime);
         	System.out.println("Time to compute matrix " + this.mRef.name + ": " + duration/1000F + "s");
+        	MatrixThreads.masterLatch.countDown();
 
         }
         catch(Exception e){
-
+        	System.out.println(e);
         }
 	}
 

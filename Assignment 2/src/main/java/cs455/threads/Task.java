@@ -24,7 +24,7 @@ public class Task{
     }
 
     public void printTask(){
-        // Forgot how to do simple java array inline initilization**
+       
         char[] temp = new char[]{'A', 'B', 'C', 'D', 'X', 'Y', 'Z'};
         System.out.println("Row " + this.rowNum + " in Matrix " + temp[this.arrayReference1] + " * Column " + this.colNum
         + " in Matrix " + temp[this.arrayReference2] + " to set column " + this.colOutput + " and row " + this.rowOutput

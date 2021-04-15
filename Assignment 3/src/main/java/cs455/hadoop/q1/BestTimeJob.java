@@ -1,4 +1,4 @@
-package cs455.hadoop.question1;
+package cs455.hadoop.q1;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -11,21 +11,21 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class WordCountJob {
+public class BestTimeJob {
     public static void main(String[] args){
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-            Job job = Job.getInstance(conf, "word count");
+            Job job = Job.getInstance(conf, "question 1");
 
             // Current Class
-            job.setJarByClass(WordCountJob.class);
+            job.setJarByClass(BestTimeJob.class);
             // Mapper
-            job.setMapperClass(WordCountMapper.class);
+            job.setMapperClass(BestTimeMapper.class);
             // Combiner. We use the reducer as the combiner in this case.
-            job.setCombinerClass(WordCountReducer.class);
+            job.setCombinerClass(BestTimeReducer.class);
             // Reducer
-            job.setReducerClass(WordCountReducer.class);
+            job.setReducerClass(BestTimeReducer.class);
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);

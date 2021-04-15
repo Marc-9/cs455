@@ -15,7 +15,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'cs455.hadoop.question1.WordCountJob'
+        attributes 'Main-Class': 'cs455.hadoop.wordcount.WordCountJob'
     }
 }
 

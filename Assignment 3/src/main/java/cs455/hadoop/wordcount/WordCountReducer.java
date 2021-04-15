@@ -1,4 +1,4 @@
-package cs455.hadoop.question1;
+package cs455.hadoop.wordcount;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;

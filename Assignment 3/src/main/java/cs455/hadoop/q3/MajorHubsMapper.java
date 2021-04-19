@@ -22,7 +22,7 @@ public class MajorHubsMapper extends Mapper<LongWritable, Text,Text, IntWritable
         try{
             String origin = test.get(7);
             String year = test.get(0);
-            String orgin_year = origin + "-" + year;
+            String origin_year = origin + "-" + year;
 
             context.write(new Text(origin), new IntWritable(1));
             context.write(new Text(origin_year), new IntWritable(1));

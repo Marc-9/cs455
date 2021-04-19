@@ -1,4 +1,4 @@
-package cs455.hadoop.q1;
+package cs455.hadoop.q3;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;

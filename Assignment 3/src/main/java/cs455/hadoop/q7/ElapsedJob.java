@@ -1,4 +1,4 @@
-package cs455.hadoop.q6;
+package cs455.hadoop.q7;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -11,21 +11,21 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class CityJob {
+public class ElapsedJob {
     public static void main(String[] args){
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-            Job job = Job.getInstance(conf, "question 6");
+            Job job = Job.getInstance(conf, "question 7");
 
             // Current Class
-            job.setJarByClass(CityJob.class);
+            job.setJarByClass(ElapsedJob.class);
             // Mapper
-            job.setMapperClass(CityMapper.class);
+            job.setMapperClass(ElapsedMapper.class);
             // Combiner. We use the reducer as the combiner in this case.
-            job.setCombinerClass(CityReducer.class);
+            job.setCombinerClass(ElapsedReducer.class);
             // Reducer
-            job.setReducerClass(CityReducer.class);
+            job.setReducerClass(ElapsedReducer.class);
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);

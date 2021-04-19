@@ -20,9 +20,17 @@ public class BestTimeMapper extends Mapper<LongWritable, Text,Text, IntWritable>
         List<String> test = Arrays.asList(value.toString().split(","));
 
         try{
+            String[] monthConverter = new String[] {"January", "Febuary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+            String[] dayConverter = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
             int delay = (int)Double.parseDouble(test.get(14));
-            String month = test.get(1);
-            context.write(new Text(test.get(1)), new IntWritable((int)Double.parseDouble(test.get(14))));
+            String month = monthConverter[Integer.parseInt(test.get(1))];
+            String dow = dayConverter[Integer.parseInt(test.get(3))];
+            String scheduledTime = test.get(12);
+
+            String month = Integer.parseInt(test.get(1));
+            context.write(new Text(month), new IntWritable(delay));
+            context.write(new Text(dow), new IntWritable(delay));
+            context.write(new Text(scheduledTime), new IntWritable(delay));
         }catch (Exception e){
 
         }

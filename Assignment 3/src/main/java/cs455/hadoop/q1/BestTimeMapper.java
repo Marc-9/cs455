@@ -27,7 +27,6 @@ public class BestTimeMapper extends Mapper<LongWritable, Text,Text, IntWritable>
             String dow = dayConverter[Integer.parseInt(test.get(3))];
             String scheduledTime = test.get(12);
 
-            String month = Integer.parseInt(test.get(1));
             context.write(new Text(month), new IntWritable(delay));
             context.write(new Text(dow), new IntWritable(delay));
             context.write(new Text(scheduledTime), new IntWritable(delay));

@@ -11,21 +11,21 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class BestTimeJob {
+public class MajorHubsJob {
     public static void main(String[] args){
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-            Job job = Job.getInstance(conf, "question 1+2");
+            Job job = Job.getInstance(conf, "question 3");
 
             // Current Class
-            job.setJarByClass(BestTimeJob.class);
+            job.setJarByClass(MajorHubsJob.class);
             // Mapper
-            job.setMapperClass(BestTimeMapper.class);
+            job.setMapperClass(MajorHubsMapper.class);
             // Combiner. We use the reducer as the combiner in this case.
-            job.setCombinerClass(BestTimeReducer.class);
+            job.setCombinerClass(MajorHubsReducer.class);
             // Reducer
-            job.setReducerClass(BestTimeReducer.class);
+            job.setReducerClass(MajorHubsReducer.class);
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);
